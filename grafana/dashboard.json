@@ -1,0 +1,102 @@
+{
+  "id": null,
+  "uid": "research-assistant",
+  "title": "Enterprise Research Assistant",
+  "tags": ["research", "llm", "agents"],
+  "timezone": "browser",
+  "schemaVersion": 30,
+  "version": 1,
+  "refresh": "10s",
+  "panels": [
+    {
+      "id": 1,
+      "title": "Queries per Minute",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 0 },
+      "targets": [{
+        "expr": "rate(research_queries_total[1m]) * 60",
+        "legendFormat": "qpm"
+      }]
+    },
+    {
+      "id": 2,
+      "title": "P95 Latency (s)",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 6, "x": 6, "y": 0 },
+      "targets": [{
+        "expr": "histogram_quantile(0.95, rate(query_latency_seconds_bucket[5m]))",
+        "legendFormat": "p95"
+      }]
+    },
+    {
+      "id": 3,
+      "title": "Cost per Query USD (median)",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 6, "x": 12, "y": 0 },
+      "targets": [{
+        "expr": "histogram_quantile(0.5, rate(query_cost_usd_bucket[5m]))",
+        "legendFormat": "p50"
+      }]
+    },
+    {
+      "id": 4,
+      "title": "Active Sessions",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 6, "x": 18, "y": 0 },
+      "targets": [{
+        "expr": "active_sessions",
+        "legendFormat": "sessions"
+      }]
+    },
+    {
+      "id": 5,
+      "title": "Query Latency Distribution",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 4 },
+      "targets": [
+        { "expr": "histogram_quantile(0.5, rate(query_latency_seconds_bucket[5m]))", "legendFormat": "p50" },
+        { "expr": "histogram_quantile(0.95, rate(query_latency_seconds_bucket[5m]))", "legendFormat": "p95" },
+        { "expr": "histogram_quantile(0.99, rate(query_latency_seconds_bucket[5m]))", "legendFormat": "p99" }
+      ]
+    },
+    {
+      "id": 6,
+      "title": "Error Rate",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 4 },
+      "targets": [{
+        "expr": "rate(research_queries_total{status=~\"5..\"}[5m])",
+        "legendFormat": "5xx errors"
+      }]
+    },
+    {
+      "id": 7,
+      "title": "Tokens Used (last query)",
+      "type": "gauge",
+      "gridPos": { "h": 4, "w": 8, "x": 0, "y": 12 },
+      "targets": [{ "expr": "tokens_used_last_query" }],
+      "options": { "reduceOptions": { "calcs": ["last"] }, "minValue": 0, "maxValue": 8000 }
+    },
+    {
+      "id": 8,
+      "title": "TTFT (median, seconds)",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 8, "x": 8, "y": 12 },
+      "targets": [{
+        "expr": "histogram_quantile(0.5, rate(ttft_seconds_bucket[5m]))",
+        "legendFormat": "p50 ttft"
+      }]
+    },
+    {
+      "id": 9,
+      "title": "Total Queries by Status",
+      "type": "piechart",
+      "gridPos": { "h": 4, "w": 8, "x": 16, "y": 12 },
+      "targets": [{
+        "expr": "research_queries_total",
+        "legendFormat": "{{status}}"
+      }]
+    }
+  ],
+  "time": { "from": "now-1h", "to": "now" }
+}
